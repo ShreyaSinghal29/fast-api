@@ -2,9 +2,11 @@ name: API Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   test:
@@ -24,14 +26,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn pytest requests
 
-      - name: Start FastAPI server
+      - name: Start FastAPI server in background
         run: |
-          nohup python apiserver.py &
+          nohup python apiserver.py > server.log 2>&1 &
+          sleep 5
+          cat server.log  # Optional: helps debug if the server fails
         env:
           PYTHONUNBUFFERED: 1
 
-      - name: Wait for server to be ready
-        run: sleep 5
-
-      - name: Run tests
+      - name: Run tests with pytest
         run: pytest tests/testAutomationPytest.py
